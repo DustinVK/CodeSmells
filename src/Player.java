@@ -69,56 +69,56 @@ public class Player {
     public void update(float x, float y,float dt){
         getRotation(x,y);
         if(specialActive){
-            if(TimeUtils.timeSinceMillis(specialTimer)>500){
-                specialActive = false;
-            }
-            float maxDistance = 5*speed * dt;
-
-
-            //a vector from the player to the touch point:
-            tmp.set(dashEnd.x, dashEnd.y).sub(position.x, position.y);
-
-            if (tmp.len() <= size) {// close enough to just set the player at the target
-                position.x = dashEnd.x;
-                position.y = dashEnd.y;
-            } else { // need to move along the vector toward the target
-                tmp.nor().scl(maxDistance); //reduce vector length to the distance traveled this frame
-                position.x += tmp.x; //move rectangle by the vector length
-                position.y += tmp.y;
-            }
-            bounds.setPosition(position.x, position.y);
-
-            magnetBounds.setPosition(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2));
+            updateSpecial(dt);
         }
         else {
-            //how far the player can move this frame (distance = speed * time):
-            float maxDistance = speed * dt;
-
-
-            //a vector from the player to the touch point:
-            tmp.set(x, y).sub(position.x, position.y);
-
-
-            if (tmp.len() <= 5) {// close enough to just set the player at the target
-                position.x = x;
-                position.y = y;
-
-            } else { // need to move along the vector toward the target
-                tmp.nor().scl(maxDistance); //reduce vector length to the distance traveled this frame
-
-                position.x += tmp.x; //move rectangle by the vector length
-                position.y += tmp.y;
-
-            }
-            bounds.setPosition(position.x, position.y);
-            magnetBounds.setPosition(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2));
+            updateNormal(x, y, dt);
         }
 
 
     }
 
-    private void updateSpecial(){
+    private void updateNormal(float x, float y, float dt) {
+        //how far the player can move this frame (distance = speed * time):
+        float maxDistance = speed * dt;
 
+
+        //a vector from the player to the touch point:
+        tmp.set(x, y).sub(position.x, position.y);
+
+
+        normalizeMovement(x, y, maxDistance, 5);
+        bounds.setPosition(position.x, position.y);
+        magnetBounds.setPosition(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2));
+    }
+
+    private void normalizeMovement(float x, float y, float maxDistance, float i) {
+        if (tmp.len() <= i) {// close enough to just set the player at the target
+            position.x = x;
+            position.y = y;
+
+        } else { // need to move along the vector toward the target
+            tmp.nor().scl(maxDistance); //reduce vector length to the distance traveled this frame
+            position.x += tmp.x; //move rectangle by the vector length
+            position.y += tmp.y;
+
+        }
+    }
+
+    private void updateSpecial(float dt) {
+        if(TimeUtils.timeSinceMillis(specialTimer)>500){
+            specialActive = false;
+        }
+        float maxDistance = 5*speed * dt;
+
+
+        //a vector from the player to the touch point:
+        tmp.set(dashEnd.x, dashEnd.y).sub(position.x, position.y);
+
+        normalizeMovement(dashEnd.x, dashEnd.y, maxDistance, size);
+        bounds.setPosition(position.x, position.y);
+
+        magnetBounds.setPosition(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2));
     }
 
     public Rectangle getBounds() {
@@ -129,9 +129,9 @@ public class Player {
         return magnetBounds;
     }
 
+    // for future
     public void setSpecialAbility(GameManager.SpecialAbility special){
         specialAbility = special;
-
         switch (specialAbility){
             case DASH:
                 break;
