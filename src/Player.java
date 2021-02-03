@@ -39,7 +39,6 @@ public class Player {
     public Player(float x, float y, GameManager manager) {
         this.manager = manager;
         position = new Vector3(x, y, 0);
-
         specialActive = false;
         this.rotation = 0;
         updatePlayer();
@@ -50,16 +49,13 @@ public class Player {
         speed = manager.getPlayerSpeed();
         bounds = new Rectangle(position.x, position.y, size, size);
         magnetSize = size * 1.5f * manager.getPlayerMagnet();
-        System.out.println("total mag size: " + magnetSize);
         magnetBounds = new Rectangle(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2),magnetSize,magnetSize);
         setSpecialAbility(manager.specialAbility);
 
     }
 
     private void getRotation(float x, float y){
-        float originX = x;
-        float originY = y;
-        this.rotation = MathUtils.atan2(originY-position.y, originX-position.x) * MathUtils.radDeg;
+        this.rotation = MathUtils.atan2(y-position.y, x-position.x) * MathUtils.radDeg;
     }
 
     public Texture getTexture() {
@@ -78,16 +74,15 @@ public class Player {
 
     }
 
+    //how far the player can move this frame (distance = speed * time):
+    private float maxDistance(float dt){
+        return speed * dt;
+    }
+
     private void updateNormal(float x, float y, float dt) {
-        //how far the player can move this frame (distance = speed * time):
-        float maxDistance = speed * dt;
-
-
         //a vector from the player to the touch point:
         tmp.set(x, y).sub(position.x, position.y);
-
-
-        normalizeMovement(x, y, maxDistance, 5);
+        normalizeMovement(x, y, maxDistance(dt), 5);
         bounds.setPosition(position.x, position.y);
         magnetBounds.setPosition(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2));
     }
