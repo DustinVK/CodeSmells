@@ -28,13 +28,8 @@ public class Player {
     private boolean specialActive;
     private long specialTimer;
     private Vector2 dashEnd;
-    private float magnet;
 
     public float rotation;
-
-
-    GameManager.SpecialAbility specialAbility;
-
 
     public Player(float x, float y, GameManager manager) {
         this.manager = manager;
@@ -50,8 +45,6 @@ public class Player {
         bounds = new Rectangle(position.x, position.y, size, size);
         magnetSize = size * 1.5f * manager.getPlayerMagnet();
         magnetBounds = new Rectangle(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2),magnetSize,magnetSize);
-        setSpecialAbility(manager.specialAbility);
-
     }
 
     private void getRotation(float x, float y){
@@ -70,8 +63,6 @@ public class Player {
         else {
             updateNormal(x, y, dt);
         }
-
-
     }
 
     //how far the player can move this frame (distance = speed * time):
@@ -96,7 +87,6 @@ public class Player {
             tmp.nor().scl(maxDistance); //reduce vector length to the distance traveled this frame
             position.x += tmp.x; //move rectangle by the vector length
             position.y += tmp.y;
-
         }
     }
 
@@ -105,8 +95,6 @@ public class Player {
             specialActive = false;
         }
         float maxDistance = 5*speed * dt;
-
-
         //a vector from the player to the touch point:
         tmp.set(dashEnd.x, dashEnd.y).sub(position.x, position.y);
 
@@ -122,21 +110,6 @@ public class Player {
 
     public Rectangle getMagnetBounds() {
         return magnetBounds;
-    }
-
-    // for future
-    public void setSpecialAbility(GameManager.SpecialAbility special){
-        specialAbility = special;
-        switch (specialAbility){
-            case DASH:
-                break;
-
-            case BOOST:
-                break;
-
-            case ANTIBODY:
-                break;
-        }
     }
 
     public void activateSpecial(float x, float y){
