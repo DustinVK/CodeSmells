@@ -9,13 +9,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.dustin.main.GameManager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class Player {
     protected GameManager manager;
-    private final Vector2 tmp = new Vector2();
+    private final Vector2 movementVector = new Vector2();
     private Rectangle bounds;
     public Rectangle magnetBounds;
     public Vector3 position;
@@ -72,21 +68,25 @@ public class Player {
 
     private void updateNormal(float x, float y, float dt) {
         //a vector from the player to the touch point:
-        tmp.set(x, y).sub(position.x, position.y);
+        setMovementVector(x, y);
         normalizeMovement(x, y, maxDistance(dt), 5);
         bounds.setPosition(position.x, position.y);
         magnetBounds.setPosition(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2));
     }
 
+    private void setMovementVector(float x, float y) {
+        movementVector.set(x, y).sub(position.x, position.y);
+    }
+
     private void normalizeMovement(float x, float y, float maxDistance, float i) {
-        if (tmp.len() <= i) {// close enough to just set the player at the target
+        if (movementVector.len() <= i) {// close enough to just set the player at the target
             position.x = x;
             position.y = y;
 
         } else { // need to move along the vector toward the target
-            tmp.nor().scl(maxDistance); //reduce vector length to the distance traveled this frame
-            position.x += tmp.x; //move rectangle by the vector length
-            position.y += tmp.y;
+            movementVector.nor().scl(maxDistance); //reduce vector length to the distance traveled this frame
+            position.x += movementVector.x; //move rectangle by the vector length
+            position.y += movementVector.y;
         }
     }
 
@@ -95,12 +95,9 @@ public class Player {
             specialActive = false;
         }
         float maxDistance = 5*speed * dt;
-        //a vector from the player to the touch point:
-        tmp.set(dashEnd.x, dashEnd.y).sub(position.x, position.y);
-
+        setMovementVector(dashEnd.x, dashEnd.y);
         normalizeMovement(dashEnd.x, dashEnd.y, maxDistance, size);
         bounds.setPosition(position.x, position.y);
-
         magnetBounds.setPosition(position.x-((magnetSize-size)/2), position.y-((magnetSize-size)/2));
     }
 
